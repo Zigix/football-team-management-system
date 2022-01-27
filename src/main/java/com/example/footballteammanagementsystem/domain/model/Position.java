@@ -1,5 +1,5 @@
 package com.example.footballteammanagementsystem.domain.model;
 
-public enum Positions {
+public enum Position {
     STRIKER, DEFENDER, MIDFIELDER, GOALKEEPER
 }

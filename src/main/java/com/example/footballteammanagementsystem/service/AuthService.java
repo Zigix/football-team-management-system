@@ -1,5 +1,8 @@
 package com.example.footballteammanagementsystem.service;
 
+import com.example.footballteammanagementsystem.configuration.security.JwtTokenUtil;
+import com.example.footballteammanagementsystem.domain.dto.LoginRequest;
+import com.example.footballteammanagementsystem.domain.dto.LoginResponse;
 import com.example.footballteammanagementsystem.domain.dto.RegisterUserRequest;
 import com.example.footballteammanagementsystem.domain.dto.UsernameExistsException;
 import com.example.footballteammanagementsystem.domain.exception.EmailExistsException;
@@ -12,6 +15,10 @@ import com.example.footballteammanagementsystem.repository.TeamRepository;
 import com.example.footballteammanagementsystem.repository.UserRepository;
 import com.example.footballteammanagementsystem.repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +40,8 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Transactional
     public void signUp(RegisterUserRequest request) {
@@ -62,7 +71,7 @@ public class AuthService {
         Team team = new Team();
         team.setName(request.getTeamName());
         team.setCreatedDate(Instant.now());
-        team.setTrainer(saved);
+        team.setUser(saved);
         teamRepository.save(team);
     }
 
@@ -98,5 +107,28 @@ public class AuthService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name - " + username));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public LoginResponse login(LoginRequest request) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                request.getUsername(),
+                request.getPassword()
+        );
+        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String username = getLoggedUser().getUsername();
+        String teamName = teamRepository.findByUserUsername(username).getName();
+        String jwtToken = jwtTokenUtil.generate(authentication);
+
+        return new LoginResponse(username, teamName, jwtToken);
+    }
+
+    @Transactional(readOnly = true)
+    public User getLoggedUser() {
+        return (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 }

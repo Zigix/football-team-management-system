@@ -20,7 +20,7 @@ public class Team {
     private Instant createdDate;
 
     @OneToOne
-    private User trainer;
+    private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "team")
     private List<Player> players;
