@@ -18,4 +18,10 @@ public class AuthApi {
         authService.signUp(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @GetMapping("/verification")
+    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) {
+        authService.verifyAccount(token);
+        return ResponseEntity.ok("Account activated successfully");
+    }
 }

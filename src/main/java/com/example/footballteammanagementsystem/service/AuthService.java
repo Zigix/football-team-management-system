@@ -4,6 +4,7 @@ import com.example.footballteammanagementsystem.domain.dto.RegisterUserRequest;
 import com.example.footballteammanagementsystem.domain.dto.UsernameExistsException;
 import com.example.footballteammanagementsystem.domain.exception.EmailExistsException;
 import com.example.footballteammanagementsystem.domain.exception.TeamNameExistsException;
+import com.example.footballteammanagementsystem.domain.exception.TokenNotFoundException;
 import com.example.footballteammanagementsystem.domain.model.Team;
 import com.example.footballteammanagementsystem.domain.model.User;
 import com.example.footballteammanagementsystem.domain.model.VerificationToken;
@@ -11,6 +12,7 @@ import com.example.footballteammanagementsystem.repository.TeamRepository;
 import com.example.footballteammanagementsystem.repository.UserRepository;
 import com.example.footballteammanagementsystem.repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,5 +87,16 @@ public class AuthService {
         verificationToken.setUser(user);
         verificationTokenRepository.save(verificationToken);
         return verificationToken.getToken();
+    }
+
+    @Transactional
+    public void verifyAccount(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new TokenNotFoundException("Invalid token"));
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with name - " + username));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 }
