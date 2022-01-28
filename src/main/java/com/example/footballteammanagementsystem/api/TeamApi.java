@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/teams")
+@RequestMapping("/api/teams")
 @RequiredArgsConstructor
 public class TeamApi {
     private final TeamService teamService;

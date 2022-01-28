@@ -29,7 +29,7 @@ public class TeamService {
                             .map(playerMapper::toPlayerTeamView)
                             .toList();
                     TeamView teamView = new TeamView();
-                    teamView.setName(teamView.getName());
+                    teamView.setName(team.getName());
                     teamView.setTrainer(team.getUser().getFirstName() + team.getUser().getLastName());
                     teamView.setPlayers(playerTeamViewList);
                     return teamView;
