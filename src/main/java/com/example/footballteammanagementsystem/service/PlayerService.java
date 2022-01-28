@@ -79,6 +79,7 @@ public class PlayerService {
         return playerMapper.toPlayerView(player);
     }
 
+    @Transactional
     public PlayerView toggleReserve(Long id) {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new PlayerNotFoundException("Player with id " + id + " not found"));

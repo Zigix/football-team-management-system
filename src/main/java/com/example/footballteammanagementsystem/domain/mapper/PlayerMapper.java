@@ -1,6 +1,7 @@
 package com.example.footballteammanagementsystem.domain.mapper;
 
 import com.example.footballteammanagementsystem.domain.dto.AddPlayerRequest;
+import com.example.footballteammanagementsystem.domain.dto.PlayerTeamView;
 import com.example.footballteammanagementsystem.domain.dto.PlayerView;
 import com.example.footballteammanagementsystem.domain.model.Player;
 import com.example.footballteammanagementsystem.domain.model.Team;
@@ -24,4 +25,11 @@ public interface PlayerMapper {
     @Mapping(target = "teamName", expression = "java(player.getTeam().getName())")
     @Mapping(target = "teamId", expression = "java(player.getTeam().getId())")
     PlayerView toPlayerView(Player player);
+
+    @Mapping(target = "fullName", expression = "java(getFullName(player))")
+    PlayerTeamView toPlayerTeamView(Player player);
+
+    default String getFullName(Player player) {
+        return player.getFirstName() + " " + player.getLastName();
+    }
 }
